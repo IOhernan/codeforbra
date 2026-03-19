@@ -3,6 +3,7 @@ version: '3.9'
 # ============================================================
 # JBAFI - 7 Contenedores (Windows Desktop + Docker Desktop)
 # Sistema Completo AFI en tu máquina Windows
+# PUERTOS ALTERNATIVOS (evita conflictos)
 # ============================================================
 
 services:
@@ -69,7 +70,7 @@ services:
     volumes:
       - afi_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5440:5432"
     restart: unless-stopped
     networks:
       - afi_network
@@ -144,7 +145,7 @@ services:
     volumes:
       - clone_full_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5441:5432"
     restart: unless-stopped
     networks:
       - afi_network
