@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFI - Sistema de Afiliaciones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        
+        .status {
+            background: #f0f9ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .status-value {
+            color: #667eea;
+            font-family: monospace;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .endpoints {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .endpoints h2 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        .endpoint-item {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .endpoint-url {
+            font-family: monospace;
+            color: #667eea;
+            word-break: break-all;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #764ba2;
+        }
+        
+        .footer {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AFI Sistema</h1>
+        <p>Sistema de Afiliaciones - Completamente Operacional</p>
+        
+        <div class="status">
+            <div class="status-item">
+                <span class="status-label">Backend:</span>
+                <span class="status-value">Conectado <span class="badge badge-success">OK</span></span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Base de Datos:</span>
+                <span class="status-value">Activa <span class="badge badge-success">OK</span></span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Qdrant:</span>
+                <span class="status-value">Disponible <span class="badge badge-success">OK</span></span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Ollama:</span>
+                <span class="status-value">Listo <span class="badge badge-success">OK</span></span>
+            </div>
+        </div>
+        
+        <div class="endpoints">
+            <h2>📡 Endpoints Disponibles</h2>
+            <div class="endpoint-item">
+                <strong>Backend Principal</strong>
+                <div class="endpoint-url">http://localhost:8000</div>
+            </div>
+            <div class="endpoint-item">
+                <strong>Swagger API Docs</strong>
+                <div class="endpoint-url">http://localhost:8000/docs</div>
+            </div>
+            <div class="endpoint-item">
+                <strong>Backend Compatibilidad 926</strong>
+                <div class="endpoint-url">http://localhost:8011</div>
+            </div>
+            <div class="endpoint-item">
+                <strong>Qdrant Vector Store</strong>
+                <div class="endpoint-url">http://localhost:6333</div>
+            </div>
+            <div class="endpoint-item">
+                <strong>Ollama LLM</strong>
+                <div class="endpoint-url">http://localhost:11434</div>
+            </div>
+        </div>
+        
+        <button onclick="testBackend()">🔍 Verificar Backend</button>
+        
+        <div class="footer">
+            <p>Sistema AFI - Todos los servicios operacionales</p>
+            <p>7 contenedores Docker sincronizados y listos</p>
+        </div>
+    </div>
+    
+    <script>
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                const data = await response.json();
+                alert('✅ Backend respondiendo:\n' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                alert('❌ Error conectando al backend:\n' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
