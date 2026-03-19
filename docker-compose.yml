@@ -1,8 +1,8 @@
 version: '3.9'
 
 # ============================================================
-# JBAFI - Configuración de Producción
-# 7 Contenedores: Sistema completo AFI
+# JBAFI - 7 Contenedores (Windows Desktop + Docker Desktop)
+# Sistema Completo AFI en tu máquina Windows
 # ============================================================
 
 services:
@@ -16,22 +16,16 @@ services:
     working_dir: /app
     volumes:
       - ./frontend-nova:/app
-      - /app/node_modules  # Evita montar node_modules
+      - /app/node_modules
     ports:
       - "3000:5173"
     environment:
-      - VITE_API_URL=http://afi_backend:8000
-      - NODE_ENV=production
+      - VITE_API_URL=http://localhost:8000
+      - NODE_ENV=development
     command: sh -c "npm install && npx vite --host 0.0.0.0"
     restart: unless-stopped
     networks:
       - afi_network
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5173"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   # ============================================================
   # 2. BACKEND PRINCIPAL - Lógica Imagine (FastAPI)
@@ -42,12 +36,9 @@ services:
       dockerfile: Dockerfile
     container_name: afi_backend
     depends_on:
-      afi_postgres:
-        condition: service_healthy
-      afi_qdrant:
-        condition: service_started
-      afi_ollama:
-        condition: service_started
+      - afi_postgres
+      - afi_qdrant
+      - afi_ollama
     environment:
       - DATABASE_URL=postgresql://afi_user:afi_pass@afi_postgres:5432/afiliaciones
       - QDRANT_URL=http://afi_qdrant:6333
@@ -55,22 +46,15 @@ services:
       - MODEL_NAME=llama3.2:1b
       - EMBEDDING_MODEL=nomic-embed-text
       - KNOWLEDGE_DIR=/data/knowledge
-      - LOG_LEVEL=INFO
     volumes:
       - ./backend:/app
       - ./data:/data
     ports:
       - "8000:8000"
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
     networks:
       - afi_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   # ============================================================
   # 3. BASE DE DATOS PRINCIPAL - PostgreSQL
@@ -82,7 +66,6 @@ services:
       POSTGRES_USER: afi_user
       POSTGRES_PASSWORD: afi_pass
       POSTGRES_DB: afiliaciones
-      POSTGRES_INITDB_ARGS: "-c max_connections=200"
     volumes:
       - afi_postgres_data:/var/lib/postgresql/data
     ports:
@@ -91,7 +74,7 @@ services:
     networks:
       - afi_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U afi_user -d afiliaciones"]
+      test: ["CMD-SHELL", "pg_isready -U afi_user"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -109,15 +92,9 @@ services:
       - "6334:6334"
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6333
-      - QDRANT__LOG_LEVEL=INFO
     restart: unless-stopped
     networks:
       - afi_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # ============================================================
   # 5. MODELO LLM LOCAL - Ollama
@@ -129,17 +106,9 @@ services:
       - afi_ollama_data:/root/.ollama
     ports:
       - "11434:11434"
-    environment:
-      - OLLAMA_HOST=0.0.0.0:11434
     restart: unless-stopped
     networks:
       - afi_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
   # ============================================================
   # 6. BACKEND COMPATIBILIDAD 926 - Motor Clone Full
@@ -150,25 +119,17 @@ services:
       dockerfile: Dockerfile
     container_name: clone_full_backend
     depends_on:
-      clone_full_postgres:
-        condition: service_healthy
+      - clone_full_postgres
     environment:
       - DATABASE_URL=postgresql://admin:admin@clone_full_postgres:5432/migracion
-      - LOG_LEVEL=INFO
     volumes:
       - ./migracion_py_react/backend:/app
     ports:
       - "8011:8000"
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
     networks:
       - afi_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   # ============================================================
   # 7. BASE DE DATOS COMPATIBILIDAD - PostgreSQL Clone Full
@@ -180,7 +141,6 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: migracion
-      POSTGRES_INITDB_ARGS: "-c max_connections=100"
     volumes:
       - clone_full_postgres_data:/var/lib/postgresql/data
     ports:
@@ -189,7 +149,7 @@ services:
     networks:
       - afi_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d migracion"]
+      test: ["CMD-SHELL", "pg_isready -U admin"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -202,14 +162,10 @@ networks:
     driver: bridge
 
 # ============================================================
-# VOLUMES (Datos persistentes)
+# VOLUMES (Datos persistentes en Windows)
 # ============================================================
 volumes:
   afi_postgres_data:
-    driver: local
   afi_qdrant_data:
-    driver: local
   afi_ollama_data:
-    driver: local
   clone_full_postgres_data:
-    driver: local
