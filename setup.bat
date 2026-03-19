@@ -51,6 +51,13 @@ if errorlevel 1 (
 echo [OK] Docker está corriendo
 echo.
 
+REM Crear estructura de carpetas si no existe
+echo [INFO] Verificando estructura de carpetas...
+if not exist "frontend-nova" (
+    call init.bat
+)
+echo.
+
 REM Menu
 echo ============================================================
 echo OPCIONES:
@@ -70,7 +77,10 @@ if "%choice%"=="1" (
     echo [INFO] Iniciando los 7 contenedores...
     echo Primera ejecución puede tardar 5-10 minutos
     echo.
-    docker-compose up
+    docker-compose up -d
+    echo.
+    echo [OK] Contenedores iniciados en background
+    echo Verifica con: docker ps
     goto end
 )
 
