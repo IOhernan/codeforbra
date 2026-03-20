@@ -1,22 +1,21 @@
-FROM python:3.11-slim
+FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
-# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     gcc \
-    postgresql-client \
+    g++ \
+    curl \
+    tesseract-ocr \
+    tesseract-ocr-spa \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Crear archivo requirements.txt si no existe
-RUN echo "fastapi==0.104.1\nuvicorn==0.24.0\npsycopg2-binary==2.9.9\npydantic==2.5.0" > requirements.txt
+COPY requirements.txt .
 
-# Instalar dependencias Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Crear archivo main.py dummy si no existe
-RUN echo "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get('/')\ndef read_root():\n    return {'status': 'Backend running'}" > main.py
-
-EXPOSE 8000
+COPY . .
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

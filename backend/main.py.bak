@@ -1,0 +1,47 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import httpx
+import os
+
+app = FastAPI(title="NOVA API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333")
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434")
+
+@app.get("/")
+async def root():
+    return {"message": "NOVA API - Sistema de Afiliaciones"}
+
+@app.get("/health")
+async def health():
+    services = {
+        "api": "ok",
+        "qdrant": "unknown",
+        "ollama": "unknown",
+        "postgres": "unknown"
+    }
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(f"{QDRANT_URL}/health", timeout=2.0)
+            services["qdrant"] = "ok" if r.status_code == 200 else "error"
+    except:
+        services["qdrant"] = "offline"
+    
+    try:
+        async with httpx.AsyncClient() as client:
+
+	    r = await client.get(f"{QDRANT_URL}/healthz", timeout=2.0)				
+     
+            services["ollama"] = "ok" if r.status_code == 200 else "error"
+    except:
+        services["ollama"] = "offline"
+    
+    return services
