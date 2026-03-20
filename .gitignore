@@ -1,0 +1,13 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.env.local
+.env
+*.log
+.DS_Store
+frontend-nova/node_modules/
+backend/__pycache__/
+migracion_py_react/backend/__pycache__/

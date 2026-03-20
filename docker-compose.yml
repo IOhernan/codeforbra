@@ -23,7 +23,7 @@ services:
     environment:
       - VITE_API_URL=http://localhost:8000
       - NODE_ENV=development
-    command: sh -c "npm install && npx vite --host 0.0.0.0"
+    command: sh -c "npm install --legacy-peer-deps && npm run dev"
     restart: unless-stopped
     networks:
       - afi_network
